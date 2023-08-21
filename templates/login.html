@@ -1,0 +1,42 @@
+{% load static %}
+{% csrf_token %}
+<html>
+<head>
+    <title>CodeCheck</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+</head>
+<body>
+<div class="uk-container uk-flex uk-flex-center uk-flex-middle uk-height-viewport">
+    {% csrf_token %}
+    <div class="uk-card uk-card-default uk-card-body uk-width-medium">
+        <h3 class="uk-card-title uk-text-center">Login Form</h3>
+        {% if error_message %}
+            <div class="uk-alert-danger" uk-alert>
+                <p>{{ error_message }}</p>
+            </div>
+        {% endif %}
+        <form class="uk-form-stacked" method="post" action="{% url 'login_page' %}">
+            {% csrf_token %}
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: user"></span>
+                    <input class="uk-input" type="text" placeholder="Username" name="username" required>
+                </div>
+            </div>
+            <div class="uk-margin">
+                <div class="uk-inline">
+                    <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                    <input class="uk-input" type="password" placeholder="Password" name="password" required>
+                </div>
+            </div>
+            <div class="uk-margin">
+                <button class="uk-button uk-button-primary uk-width-1-1" type="submit">Login</button>
+                <a href="{% url 'signup' %}" class="uk-margin uk-button uk-button-default uk-width-1-1">SignUp</a>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

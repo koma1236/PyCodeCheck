@@ -1,0 +1,174 @@
+{% load static %}
+
+<html>
+<head>
+    <title>CodeCheck</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+{% csrf_token %}
+
+<div class="uk-margin-medium-right uk-margin-medium-left">
+    <div uk-grid>
+        <div class="uk-width-auto uk-margin-large-top">
+            <div class="uk-card">
+                {% include 'nav.html' %}
+            </div>
+        </div>
+        <div class="uk-width-expand">
+
+            <div class="uk-card uk-card-default uk-card-body">
+
+                <div class="uk-clearfix">
+                    <div class="uk-float-right">
+                        <div class="uk-inline">
+                            <div uk-form-custom>
+
+                                <input type="file" name="file" id="files_uploader" accept=".py" multiple>
+                                <button class="uk-button uk-button-primary uk-button-small" type="button" tabindex="-1">
+                                    Выберите файл
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="uk-float-left">
+                        <h2>Файлы</h2>
+                    </div>
+                </div>
+
+                <div class="uk-overflow-auto">
+                    <table class="uk-table uk-table-small uk-table-divider uk-table-hover">
+                        <thead>
+
+
+                        <tr>
+                            <th>Название</th>
+                            <th>Дата загрузки</th>
+                            <th>Дата изменения</th>
+                            <th>Статус</th>
+                            <th class="uk-table-expand">Действия</th>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        {% for file in files %}
+                            <tr>
+
+                                <td>{{ file.file_name }}</td>
+                                <td>{{ file.upload_date }}</td>
+                                <td>{{ file.change_date }}</td>
+                                <td>{{ file.check_result }}</td>
+                                <td><a class="uk-icon-link uk-margin-small-right"
+                                       uk-tooltip="Удалить"
+                                       onclick="delete_files({{ file.id }})"
+                                       uk-icon="trash"></a>
+                                    {% if not file.new_file %}
+                                        <a class="uk-icon-link uk-margin-small-right"
+                                           uk-tooltip="Просмотр результата проверки"
+                                           onclick="show_log('{{ file.converted_log|linebreaksbr }}')"
+                                           uk-icon="comment"></a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="check_result" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-width-expand">
+        <h2 class="uk-modal-title">Результаты проверки</h2>
+        <form>
+            <fieldset class="uk-fieldset">
+
+                <div class="uk-margin" uk-grid>
+                    <div class="uk-width-1-1">
+                        <textarea class="uk-textarea" id="check_result_area" rows="20" disabled></textarea>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+    var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+    async function show_log(txt) {
+        document.getElementById('check_result_area').value = txt.replace(/<br\s*\/?>/g, "\n");
+        UIkit.modal(document.getElementById('check_result')).show()
+    }
+
+    async function delete_files(file_id) {
+
+        const formData = new FormData();
+        formData.append('action', 'delete')
+        formData.append('file_id', file_id)
+
+        fetch('/files/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+        })
+            .then(response => {
+                if (response.ok) {
+                    UIkit.notification('Файл удалён');
+                    window.location.reload();
+                } else {
+                    UIkit.notification('Файл не был удален');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка удаления файла', error);
+            });
+    }
+
+    async function upload_files() {
+        const fileInput = document.getElementById('files_uploader');
+        const files = fileInput.files;
+
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+        formData.append('action', 'upload')
+
+        fetch('/files/', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+        })
+            .then(response => {
+                if (response.ok) {
+                    UIkit.notification('Файлы загружены');
+                    window.location.reload();
+                } else {
+                    UIkit.notification('Файлы не были загружены');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки файлов', error);
+            });
+    }
+
+    document.getElementById('files_uploader').addEventListener('change', upload_files);
+</script>
+
+</html>

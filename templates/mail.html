@@ -1,0 +1,99 @@
+{% load static %}
+
+<html>
+<head>
+    <title>CodeCheck</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/css/uikit.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.15.1/dist/js/uikit-icons.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+{% csrf_token %}
+
+<div class="uk-margin-medium-right uk-margin-medium-left">
+
+    <div uk-grid>
+        <div class="uk-width-auto uk-margin-large-top">
+            <div class="uk-card">
+                {% include 'nav.html' %}
+            </div>
+        </div>
+        <div class="uk-width-expand">
+
+            <div class="uk-card uk-card-default uk-card-body">
+
+                <div class="uk-clearfix">
+
+                    <div class="uk-float-left">
+                        <h2>Почта</h2>
+                    </div>
+                </div>
+
+                <div class="uk-overflow-auto">
+                    <table class="uk-table uk-table-small uk-table-divider uk-table-hover">
+                        <thead>
+
+
+                        <tr>
+                            <th>Тема письма</th>
+                            <th>Содержание</th>
+                            <th>Дата</th>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        {% for mail in mails %}
+                            <tr>
+
+                                <td><a class="uk-link-reset"
+                                       onclick="show_message('{{ mail.mail_send_date }}','{{ mail.mail_theme }}','{{ mail.converted_message|linebreaksbr }}')">{{ mail.mail_theme }}</a>
+                                </td>
+                                <td><a class="uk-link-reset"
+                                       onclick="show_message('{{ mail.mail_send_date }}','{{ mail.mail_theme }}','{{ mail.converted_message|linebreaksbr }}')">{{ mail.short_message }}</a>
+                                </td>
+                                <td><a class="uk-link-reset"
+                                       onclick="show_message('{{ mail.mail_send_date }}','{{ mail.mail_theme }}','{{ mail.converted_message|linebreaksbr }}')">{{ mail.mail_send_date }}</a>
+                                </td>
+
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="mail_modal" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-width-expand">
+        <h2 class="uk-modal-title" id="mail_title"></h2>
+        <form>
+            <fieldset class="uk-fieldset">
+
+                <div class="uk-margin" uk-grid>
+                    <h4 id="mail_date"></h4>
+                    <div class="uk-width-1-1">
+                        <span id="mail_message"></span>
+                    </div>
+
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript">
+
+    async function show_message(mail_date, mail_theme, mail_message) {
+        document.getElementById('mail_title').innerText = mail_theme
+        document.getElementById('mail_date').innerText = mail_date
+        document.getElementById('mail_message').innerText = mail_message.replace(/<br\s*\/?>/g, "\n");
+        UIkit.modal(document.getElementById('mail_modal')).show()
+    }
+</script>
+
+</html>

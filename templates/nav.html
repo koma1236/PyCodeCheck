@@ -1,0 +1,13 @@
+<nav>
+    <ul class="uk-nav-default" uk-nav>
+        <li {% if request.path == '/files/' %}
+            class="uk-active"
+        {% endif %}><a href="{% url 'files' %}"><span class="uk-margin-small-right"
+                                                      uk-icon="icon: code"></span>Файлы</a></li>
+        <li {% if request.path == '/mail/' %}
+            class="uk-active"
+        {% endif %}>
+            <a href="{% url 'mail' %}"><span class="uk-margin-small-right" uk-icon="icon: mail"></span>Почта</a>
+        </li>
+    </ul>
+</nav>
